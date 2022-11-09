@@ -23,22 +23,24 @@ class TelenjarController extends Controller
             $request->filled('MULTIFINANCE') ||
             $request->filled('PBB')
         ) {
-            return match ($request->TOKEN) {
-                'INQ' => $proxyService->inquiry(
-                    $request->trxid,
-                    $request->produk,
-                    $request->tujuan,
-                    $request->nominal
-                ),
-                'PAY' => $proxyService->pay(
-                    $request->trxid,
-                    $request->produk,
-                    $request->tujuan,
-                    $request->respid,
-                    $request->nominal
-                ),
-                default => throw new \Exception('Invalid parameter ' . $request->TOKEN),
-            };
+            switch ($request->TOKEN) {
+                case 'INQ':
+                    return $proxyService->inquiry(
+                        $request->trxid,
+                        $request->produk,
+                        $request->tujuan,
+                        $request->nominal
+                    );
+                case 'PAY':
+                    $proxyService->pay(
+                        $request->trxid,
+                        $request->produk,
+                        $request->tujuan,
+                        $request->respid,
+                        $request->nominal
+                    );
+                default: throw new \Exception('Invalid parameter ' . $request->TOKEN);
+            }
         }
 
         return $proxyService->purchase(
