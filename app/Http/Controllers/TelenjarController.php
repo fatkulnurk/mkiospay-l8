@@ -32,7 +32,7 @@ class TelenjarController extends Controller
                         $request->nominal
                     );
                 case 'PAY':
-                    $proxyService->pay(
+                    return $proxyService->pay(
                         $request->trxid,
                         $request->produk,
                         $request->tujuan,
