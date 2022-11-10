@@ -3,6 +3,7 @@
 namespace App\Services\Proxiers;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ProxyService
 {
@@ -35,6 +36,10 @@ class ProxyService
             'signature' => $signature,
         ];
 
+        Log::info('Inquiry', [
+            'payload' => $payload,
+        ]);
+
         $response = Http::withoutVerifying()
             ->post($url, $payload);
 
@@ -65,6 +70,9 @@ class ProxyService
             'signature' => $signature,
         ];
 
+        Log::info('Pay', [
+            'payload' => $payload,
+        ]);
         $response = Http::withoutVerifying()
             ->post($url, $payload);
 
@@ -95,6 +103,9 @@ class ProxyService
             'signature' => $signature,
         ];
 
+        Log::info('Purchase', [
+            'payload' => $payload,
+        ]);
         $response = Http::withoutVerifying()
             ->post($url, $payload);
 
