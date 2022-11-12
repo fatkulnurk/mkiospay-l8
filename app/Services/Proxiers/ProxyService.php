@@ -185,7 +185,7 @@ class ProxyService
         $url = config('setting.url.status');
         $ppidRaw = $this->getPpid();
         $ppid = base64_encode($ppidRaw);
-        $udataRaw = $productCode . '|' . $customerCode . '|' . $dateTime->toDateString();
+        $udataRaw = $productCode . '|' . $customerCode . '|' . ($transaction->date ?? $dateTime->toDateString());
         $udata = base64_encode($udataRaw);
         $xApiKey = config('setting.credentials.x_api_key');
         $signature = md5("tele-android-" . $uuid . $dTime . $ppidRaw . $udataRaw . $xApiKey . "-indonesia");
