@@ -43,6 +43,10 @@ class TelenjarController extends Controller
             }
         }
 
+        if ($request->filled('CHECK')) {
+            return $proxyService->checkStatus($request->trxid);
+        }
+
         return $proxyService->purchase(
             $request->trxid,
             $request->produk,
