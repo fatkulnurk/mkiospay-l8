@@ -14,6 +14,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+
+    $trx = [];
+    for ($i = 0; $i < 10; $i++) {
+        $trx[] = ['trxid' => \Illuminate\Support\Str::uuid()->toString(), 'external_trx_time' => now()->toDateTimeString()];
+    }
+
+    foreach ($trx as $item) {
+        \App\Models\Transaction::create($item);
+    }
+
+    return \App\Models\Transaction::all();
     return response()->json([
         'message' => "It's Work",
         'data' => [

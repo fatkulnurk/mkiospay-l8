@@ -2,11 +2,14 @@
 
 namespace App\Services\Proxiers;
 
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class ProxyService
 {
+    private $isCheckStatus = false;
+
     private function getPpid()
     {
         $username = config('setting.credentials.user_id');
@@ -15,9 +18,16 @@ class ProxyService
         return $username . '|' . $password;
     }
 
-    public function inquiry($uuid, $productCode, $customerCode, $amount = '')
+    public function inquiry($trxid, $productCode, $customerCode, $amount = '')
     {
-        $dTime = now()->setTimezone('Asia/Jakarta')->toDateTimeString();
+        $transaction = Transaction::where('trxid', $trxid)->first();
+        if (!blank($transaction)) {
+            return $this->checkStatus($trxid);
+        }
+        $dateTime = now()->setTimezone('Asia/Jakarta');
+
+        $uuid = config('setting.credentials.partner_id');
+        $dTime = $dateTime->toDateTimeString();
         $url = config('setting.url.inquiry');
         $ppidRaw = $this->getPpid();
         $ppid = base64_encode($ppidRaw);
@@ -36,18 +46,38 @@ class ProxyService
             'signature' => $signature,
         ];
 
-        Log::info('Inquiry', [
-            'payload' => $payload,
-        ]);
+        Log::info('Inquiry', compact('payload'));
 
         $response = Http::withoutVerifying()
             ->post($url, $payload);
+        $responseData = $response->json();
 
-        return $response->json();
+        if (!$this->isCheckStatus){
+            $transaction = Transaction::create([
+                    'trxid' => $trxid,
+                    'date' => $dateTime->toDateString(),
+                    'product_code' => $productCode,
+                    'customer_code' => $customerCode,
+                    'respid' => $responseData['respid'] ?? null
+                ]
+            );
+        }
+        $responseData['trxid'] = $trxid;
+        $responseData['is_check_status'] = $this->isCheckStatus;
+
+        return $responseData;
     }
 
-    public function pay($uuid, $productCode, $customerCode, $respid, $amount = '')
+    public function pay($trxid, $productCode, $customerCode, $respid, $amount = '')
     {
+        $transaction = Transaction::where('trxid', $trxid)->first();
+        if (!blank($transaction)) {
+            return $this->checkStatus($trxid);
+        }
+        $dateTime = now()->setTimezone('Asia/Jakarta');
+
+
+        $uuid = config('setting.credentials.partner_id');
         $dTime = now()->setTimezone('Asia/Jakarta')->toDateTimeString();
         $url = config('setting.url.payment');
         $ppidRaw = $this->getPpid();
@@ -70,22 +100,37 @@ class ProxyService
             'signature' => $signature,
         ];
 
-        Log::info('Pay', [
-            'payload' => $payload,
-        ]);
+        Log::info('Pay', compact('payload'));
         $response = Http::withoutVerifying()
             ->post($url, $payload);
+        $responseData = $response->json();
 
-        return $response->json();
+        if (!$this->isCheckStatus){
+            $transaction = Transaction::create([
+                    'trxid' => $trxid,
+                    'date' => $dateTime->toDateString(),
+                    'product_code' => $productCode,
+                    'customer_code' => $customerCode,
+                    'respid' => $responseData['respid'] ?? null
+                ]
+            );
+        }
+        $responseData['trxid'] = $trxid;
+        $responseData['is_check_status'] = $this->isCheckStatus;
+
+        return $responseData;
     }
 
-    public function payWithYearAndMonth()
+    public function purchase($trxid, $productCode, $customerCode, $amount = '')
     {
-        return [];
-    }
+        $transaction = Transaction::where('trxid', $trxid)->first();
+        if (!blank($transaction)) {
+            return $this->checkStatus($trxid);
+        }
 
-    public function purchase($uuid, $productCode, $customerCode, $amount = '')
-    {
+        $dateTime = now()->setTimezone('Asia/Jakarta');
+
+        $uuid = config('setting.credentials.partner_id');
         $dTime = now()->setTimezone('Asia/Jakarta')->toDateTimeString();
         $url = config('setting.url.purchase');
         $ppidRaw = $this->getPpid();
@@ -103,12 +148,62 @@ class ProxyService
             'signature' => $signature,
         ];
 
-        Log::info('Purchase', [
-            'payload' => $payload,
-        ]);
+        Log::info('Purchase', compact('payload'));
+
         $response = Http::withoutVerifying()
             ->post($url, $payload);
+        $responseData = $response->json();
 
-        return $response->json();
+        if (!$this->isCheckStatus){
+            $transaction = Transaction::create([
+                    'trxid' => $trxid,
+                    'date' => $dateTime->toDateString(),
+                    'product_code' => $productCode,
+                    'customer_code' => $customerCode,
+                    'respid' => $responseData['respid'] ?? null
+                ]
+            );
+        }
+        $responseData['trxid'] = $trxid;
+        $responseData['is_check_status'] = $this->isCheckStatus;
+
+        return $responseData;
+    }
+
+    public function checkStatus($trxid)
+    {
+        $dateTime = now()->setTimezone('Asia/Jakarta');
+        $transaction = Transaction::where('trxid', $trxid)->first();
+        if (blank($transaction)) {
+            return ['status' => false, 'response' => 'trxid belum pernah digunakan.'];
+        }
+        $productCode = $transaction->product_code;
+        $customerCode = $transaction->customer_code;
+
+        $uuid = config('setting.credentials.partner_id');
+        $dTime = $dateTime->toDateTimeString();
+        $url = config('setting.url.status');
+        $ppidRaw = $this->getPpid();
+        $ppid = base64_encode($ppidRaw);
+        $udataRaw = $productCode . '|' . $customerCode . '|' . $dateTime->toDateString();
+        $udata = base64_encode($udataRaw);
+        $xApiKey = config('setting.credentials.x_api_key');
+        $signature = md5("tele-android-" . $uuid . $dTime . $ppidRaw . $udataRaw . $xApiKey . "-indonesia");
+        $payload = [
+            'uuid' => $uuid,
+            'ppid' => $ppid,
+            'udata' => $udata,
+            'dtime' => $dTime,
+            'X-API-KEY' => $xApiKey,
+            'signature' => $signature,
+        ];
+
+        Log::info('Purchase', compact('payload'));
+        $response = Http::withoutVerifying()->post($url, $payload);
+        $responseData = $response->json();
+        $responseData['trxid'] = $trxid;
+        $responseData['is_check_status'] = true;
+
+        return $responseData;
     }
 }

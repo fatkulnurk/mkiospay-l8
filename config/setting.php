@@ -11,5 +11,6 @@ return [
         'inquiry' => env('TELE_URL_INQUIRY'),
         'payment' => env('TELE_URL_PAYMENT'),
         'purchase' => env('TELE_URL_PURCHASE'),
+        'status' => env('TELE_URL_STATUS'),
     ]
 ];
