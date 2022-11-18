@@ -37,7 +37,7 @@ class TelenjarController extends Controller
                         $request->trxid,
                         $request->produk,
                         $request->tujuan,
-                        $request->nominal
+                        ['amount' => $request->nominal, 'is_pbb' => $request->has('PBB'), 'param' => $param]
                     );
                 case 'PAY':
                     return $proxyService->pay(
@@ -45,9 +45,10 @@ class TelenjarController extends Controller
                         $request->produk,
                         $request->tujuan,
                         $request->respid,
-                        $request->nominal
+                        ['amount' => $request->nominal, 'is_pbb' => $request->has('PBB'), 'param' => $param]
                     );
-                default: throw new \Exception('Invalid parameter ' . $param);
+                default:
+                    throw new \Exception('Invalid parameter ' . $param);
             }
         }
 

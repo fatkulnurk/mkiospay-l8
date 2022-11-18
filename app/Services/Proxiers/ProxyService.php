@@ -18,8 +18,11 @@ class ProxyService
         return $username . '|' . $password;
     }
 
-    public function inquiry($trxid, $productCode, $customerCode, $amount = '')
+    public function inquiry($trxid, $productCode, $customerCode, $options = [])
     {
+        $amount = $options['amount'] ?? '';
+        $isPbb = $options['is_pbb'] ?? false;
+
         $transaction = Transaction::where('trxid', $trxid)->first();
         if (!blank($transaction)) {
             return $this->checkStatus($trxid);
@@ -28,7 +31,7 @@ class ProxyService
 
         $uuid = config('setting.credentials.partner_id');
         $dTime = $dateTime->toDateTimeString();
-        $url = config('setting.url.inquiry');
+        $url = $isPbb ? config('setting.url.pbb_payment'): config('setting.url.payment');
         $ppidRaw = $this->getPpid();
         $ppid = base64_encode($ppidRaw);
         $udataRaw = $productCode . '|' . $customerCode;
@@ -68,18 +71,20 @@ class ProxyService
         return $responseData;
     }
 
-    public function pay($trxid, $productCode, $customerCode, $respid, $amount = '')
+    public function pay($trxid, $productCode, $customerCode, $respid, $options = [])
     {
+        $amount = $options['amount'] ?? '';
+        $isPbb = $options['is_pbb'] ?? false;
+
         $transaction = Transaction::where('trxid', $trxid)->first();
         if (!blank($transaction)) {
             return $this->checkStatus($trxid);
         }
+
         $dateTime = now()->setTimezone('Asia/Jakarta');
-
-
         $uuid = config('setting.credentials.partner_id');
         $dTime = now()->setTimezone('Asia/Jakarta')->toDateTimeString();
-        $url = config('setting.url.payment');
+        $url = $isPbb ? config('setting.url.pbb_payment'): config('setting.url.payment');
         $ppidRaw = $this->getPpid();
         $ppid = base64_encode($ppidRaw);
         $udataRaw = $productCode . '|' . $customerCode . '|' . $respid . '|' . $amount;

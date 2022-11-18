@@ -12,5 +12,7 @@ return [
         'payment' => env('TELE_URL_PAYMENT'),
         'purchase' => env('TELE_URL_PURCHASE'),
         'status' => env('TELE_URL_STATUS'),
+        'pbb_inquiry' => env('TELE_URL_PBB_INQUIRY'),
+        'pbb_payment' => env('TELE_URL_PBB_PAYMENT'),
     ]
 ];
