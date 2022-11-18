@@ -44,7 +44,7 @@ class TelenjarController extends Controller
                         $request->trxid,
                         $request->produk,
                         $request->tujuan,
-                        $request->respid,
+//                        $request->respid,
                         ['amount' => $request->nominal, 'is_pbb' => $request->has('PBB'), 'param' => $param]
                     );
                 default:

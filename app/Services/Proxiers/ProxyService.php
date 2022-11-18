@@ -52,6 +52,7 @@ class ProxyService
             'signature' => $signature,
         ];
 
+        Log::info('udata_raw', compact('udataRaw'));
         Log::info('Inquiry', compact('payload'));
 
         $response = Http::withoutVerifying()
@@ -64,7 +65,7 @@ class ProxyService
                     'date' => $dateTime->toDateString(),
                     'product_code' => $productCode,
                     'customer_code' => $customerCode,
-                    'respid' => $responseData['respid'] ?? null
+                    'respid' => $responseData['respid'] ?? null,
                 ]
             );
         }
@@ -74,12 +75,28 @@ class ProxyService
         return $responseData;
     }
 
-    public function pay($trxid, $productCode, $customerCode, $respid, $options = [])
+//    public function pay($trxid, $productCode, $customerCode, $respid, $options = [])
+    public function pay($trxid, $productCode, $customerCode, $options = [])
     {
         $amount = $options['amount'] ?? '';
         $isPbb = $options['is_pbb'] ?? false;
 
-        $transaction = Transaction::where('trxid', $trxid)->first();
+//        $transaction = Transaction::where('trxid', $trxid)->first();
+        $transaction = Transaction::where('trxid', $trxid)
+            ->where('product_code', $productCode)
+            ->where('customer_code', $customerCode)
+            ->where('date', now()->setTimezone('Asia/Jakarta')->toDateString())
+            ->first();
+
+        if (!blank($transaction)) {
+            return [
+                'success' => false,
+                'response' => 'Respid tidak tersedia, silahkan lakukan INQ terlebih dahulu',
+                'note' => 'ini pesan dari backend, bukan dari telenjar'
+            ];
+        }
+
+        $respid = $transaction->respid;
         if (!blank($transaction)) {
             return $this->checkStatus($trxid);
         }
@@ -108,6 +125,8 @@ class ProxyService
             'signature' => $signature,
         ];
 
+        Log::info('respid', compact('respid'));
+        Log::info('udata_raw', compact('udataRaw'));
         Log::info('Pay', compact('payload'));
         $response = Http::withoutVerifying()
             ->post($url, $payload);
