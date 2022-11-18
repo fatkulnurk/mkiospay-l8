@@ -88,7 +88,7 @@ class ProxyService
             ->where('date', now()->setTimezone('Asia/Jakarta')->toDateString())
             ->first();
 
-        if (!blank($transaction)) {
+        if (blank($transaction)) {
             return [
                 'success' => false,
                 'response' => 'Respid tidak tersedia, silahkan lakukan INQ terlebih dahulu',
