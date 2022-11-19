@@ -135,16 +135,16 @@ class ProxyService
             ->post($url, $payload);
         $responseData = $response->json();
 
-        if (!$this->isCheckStatus) {
-            $transaction = Transaction::create([
-                    'trxid' => $trxid,
-                    'date' => $dateTime->toDateString(),
-                    'product_code' => $productCode,
-                    'customer_code' => $customerCode,
-                    'respid' => $responseData['respid'] ?? null
-                ]
-            );
-        }
+//        if (!$this->isCheckStatus) {
+//            $transaction = Transaction::create([
+//                    'trxid' => $trxid,
+//                    'date' => $dateTime->toDateString(),
+//                    'product_code' => $productCode,
+//                    'customer_code' => $customerCode,
+//                    'respid' => $responseData['respid'] ?? null
+//                ]
+//            );
+//        }
         $responseData['trxid'] = $trxid;
         $responseData['is_check_status'] = $this->isCheckStatus;
 
