@@ -31,7 +31,7 @@ class ProxyService
 
         $uuid = config('setting.credentials.partner_id');
         $dTime = $dateTime->toDateTimeString();
-        $url = $isPbb ? config('setting.url.pbb_payment'): config('setting.url.payment');
+        $url = $isPbb ? config('setting.url.pbb_payment') : config('setting.url.payment');
         $ppidRaw = $this->getPpid();
         $ppid = base64_encode($ppidRaw);
         $udataRaw = $productCode . '|' . $customerCode;
@@ -59,7 +59,7 @@ class ProxyService
             ->post($url, $payload);
         $responseData = $response->json();
 
-        if (!$this->isCheckStatus){
+        if (!$this->isCheckStatus) {
             $transaction = Transaction::create([
                     'trxid' => $trxid,
                     'date' => $dateTime->toDateString(),
@@ -89,11 +89,13 @@ class ProxyService
             ->first();
 
         if (blank($transaction)) {
-            return [
-                'success' => false,
-                'response' => 'Respid tidak tersedia, silahkan lakukan INQ terlebih dahulu',
-                'note' => 'ini pesan dari backend, bukan dari telenjar'
-            ];
+            $responseData = $this->inquiry($trxid, $productCode, $customerCode, $options);
+            $transaction = Transaction::where('trxid', $trxid)->first();
+//            return [
+//                'success' => false,
+//                'response' => 'Respid tidak tersedia, silahkan lakukan INQ terlebih dahulu',
+//                'note' => 'ini pesan dari backend, bukan dari telenjar'
+//            ];
         }
 
         $respid = $transaction->respid;
@@ -104,7 +106,7 @@ class ProxyService
         $dateTime = now()->setTimezone('Asia/Jakarta');
         $uuid = config('setting.credentials.partner_id');
         $dTime = now()->setTimezone('Asia/Jakarta')->toDateTimeString();
-        $url = $isPbb ? config('setting.url.pbb_payment'): config('setting.url.payment');
+        $url = $isPbb ? config('setting.url.pbb_payment') : config('setting.url.payment');
         $ppidRaw = $this->getPpid();
         $ppid = base64_encode($ppidRaw);
         $udataRaw = $productCode . '|' . $customerCode . '|' . $respid . '|' . $amount;
@@ -132,7 +134,7 @@ class ProxyService
             ->post($url, $payload);
         $responseData = $response->json();
 
-        if (!$this->isCheckStatus){
+        if (!$this->isCheckStatus) {
             $transaction = Transaction::create([
                     'trxid' => $trxid,
                     'date' => $dateTime->toDateString(),
@@ -181,7 +183,7 @@ class ProxyService
             ->post($url, $payload);
         $responseData = $response->json();
 
-        if (!$this->isCheckStatus){
+        if (!$this->isCheckStatus) {
             $transaction = Transaction::create([
                     'trxid' => $trxid,
                     'date' => $dateTime->toDateString(),
