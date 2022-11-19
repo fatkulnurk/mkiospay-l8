@@ -88,6 +88,10 @@ class ProxyService
             ->where('date', now()->setTimezone('Asia/Jakarta')->toDateString())
             ->first();
 
+        if (!blank($transaction)) {
+            return $this->checkStatus($trxid);
+        }
+
         if (blank($transaction)) {
             $responseData = $this->inquiry($trxid, $productCode, $customerCode, $options);
             $transaction = Transaction::where('trxid', $trxid)->first();
@@ -99,9 +103,6 @@ class ProxyService
         }
 
         $respid = $transaction->respid;
-        if (!blank($transaction)) {
-            return $this->checkStatus($trxid);
-        }
 
         $dateTime = now()->setTimezone('Asia/Jakarta');
         $uuid = config('setting.credentials.partner_id');
