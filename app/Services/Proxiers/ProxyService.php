@@ -31,7 +31,7 @@ class ProxyService
 
         $uuid = config('setting.credentials.partner_id');
         $dTime = $dateTime->toDateTimeString();
-        $url = $isPbb ? config('setting.url.pbb_payment') : config('setting.url.payment');
+        $url = $isPbb ? config('setting.url.pbb_inquiry') : config('setting.url.inquiry');
         $ppidRaw = $this->getPpid();
         $ppid = base64_encode($ppidRaw);
         $udataRaw = $productCode . '|' . $customerCode . '|' . $amount;
@@ -59,7 +59,6 @@ class ProxyService
             ->post($url, $payload);
         $responseData = $response->json();
 
-        dd($responseData);
         $respid = $responseData['respid'];
 
         if(blank($respid) || is_null($respid)) {
