@@ -106,7 +106,7 @@ class ProxyService
         $respid = $transaction->respid;
 
         if (blank($respid)) {
-            Log::info('Transaction data: ', $transaction);
+            Log::info('Transaction data: ', collect($transaction)->toArray());
             throw new \Exception('respid salah.');
         }
 
