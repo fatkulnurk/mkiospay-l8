@@ -59,22 +59,21 @@ class ProxyService
             ->post($url, $payload);
         $responseData = $response->json();
 
-        if (!$this->isCheckStatus) {
-            $respid = $responseData['respid'];
+        dd($responseData);
+        $respid = $responseData['respid'];
 
-            if(blank($respid) || is_null($respid)) {
-                throw new \Exception($responseData['response'] ?? 'Tidak dapat melakukan inquiry.');
-            }
-
-            $transaction = Transaction::create([
-                    'trxid' => $trxid,
-                    'date' => $dateTime->toDateString(),
-                    'product_code' => $productCode,
-                    'customer_code' => $customerCode,
-                    'respid' => $respid,
-                ]
-            );
+        if(blank($respid) || is_null($respid)) {
+            throw new \Exception($responseData['response'] ?? 'Tidak dapat melakukan inquiry.');
         }
+
+        $transaction = Transaction::create([
+                'trxid' => $trxid,
+                'date' => $dateTime->toDateString(),
+                'product_code' => $productCode,
+                'customer_code' => $customerCode,
+                'respid' => $respid,
+            ]
+        );
         $responseData['trxid'] = $trxid;
         $responseData['is_check_status'] = $this->isCheckStatus;
 
@@ -234,7 +233,7 @@ class ProxyService
             'signature' => $signature,
         ];
 
-        Log::info('Purchase', compact('payload'));
+        Log::info('Cek status ', compact('payload'));
         $response = Http::withoutVerifying()->post($url, $payload);
         $responseData = $response->json();
         $responseData['trxid'] = $trxid;
