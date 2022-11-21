@@ -62,7 +62,7 @@ class ProxyService
         if (!$this->isCheckStatus) {
             $respid = $responseData['respid'];
 
-            if(blank($respid)) {
+            if(blank($respid) || is_null($respid)) {
                 throw new \Exception($responseData['response'] ?? 'Tidak dapat melakukan inquiry.');
             }
 
@@ -101,14 +101,14 @@ class ProxyService
         if (blank($transaction)) {
             $responseData = $this->inquiry($trxid, $productCode, $customerCode, $options);
             $transaction = Transaction::where('trxid', $trxid)->first();
-//            return [
-//                'success' => false,
-//                'response' => 'Respid tidak tersedia, silahkan lakukan INQ terlebih dahulu',
-//                'note' => 'ini pesan dari backend, bukan dari telenjar'
-//            ];
         }
 
         $respid = $transaction->respid;
+
+        if (blank($respid)) {
+            Log::info('Transaction data: ', $transaction);
+            throw new \Exception('respid salah.');
+        }
 
         $dateTime = now()->setTimezone('Asia/Jakarta');
         $uuid = config('setting.credentials.partner_id');
