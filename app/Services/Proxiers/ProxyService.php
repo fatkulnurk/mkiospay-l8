@@ -34,9 +34,9 @@ class ProxyService
         $url = $isPbb ? config('setting.url.pbb_payment') : config('setting.url.payment');
         $ppidRaw = $this->getPpid();
         $ppid = base64_encode($ppidRaw);
-        $udataRaw = $productCode . '|' . $customerCode;
+        $udataRaw = $productCode . '|' . $customerCode . '|' . $amount;
         if (blank($amount)) {
-            $udataRaw = $productCode . '|' . $customerCode . '|' . $amount;
+            $udataRaw = $productCode . '|' . $customerCode;
         }
         $udata = base64_encode($udataRaw);
         $ket = '';
@@ -60,12 +60,18 @@ class ProxyService
         $responseData = $response->json();
 
         if (!$this->isCheckStatus) {
+            $respid = $responseData['respid'];
+
+            if(blank($respid)) {
+                throw new \Exception($responseData['response'] ?? 'Tidak dapat melakukan inquiry.');
+            }
+
             $transaction = Transaction::create([
                     'trxid' => $trxid,
                     'date' => $dateTime->toDateString(),
                     'product_code' => $productCode,
                     'customer_code' => $customerCode,
-                    'respid' => $responseData['respid'] ?? null,
+                    'respid' => $respid,
                 ]
             );
         }
