@@ -85,18 +85,16 @@ class ProxyService
         $amount = $options['amount'] ?? '';
         $isPbb = $options['is_pbb'] ?? false;
 
-//        $transaction = Transaction::where('trxid', $trxid)->first();
-        $transaction = Transaction::where('trxid', $trxid)
-            ->where('product_code', $productCode)
-            ->where('customer_code', $customerCode)
-            ->where('date', now()->setTimezone('Asia/Jakarta')->toDateString())
-            ->first();
+        $transaction = Transaction::where('trxid', $trxid)->first();
+//        $transaction = Transaction::where('trxid', $trxid)
+//            ->where('product_code', $productCode)
+//            ->where('customer_code', $customerCode)
+//            ->where('date', now()->setTimezone('Asia/Jakarta')->toDateString())
+//            ->first();
 
         if (!blank($transaction)) {
             return $this->checkStatus($trxid);
-        }
-
-        if (blank($transaction)) {
+        } else {
             $responseData = $this->inquiry($trxid, $productCode, $customerCode, $options);
             $transaction = Transaction::where('trxid', $trxid)->first();
         }
@@ -115,9 +113,11 @@ class ProxyService
         $ppidRaw = $this->getPpid();
         $ppid = base64_encode($ppidRaw);
         $udataRaw = $productCode . '|' . $customerCode . '|' . $respid . '|' . $amount;
+
         if (blank($amount)) {
             $udataRaw = $productCode . '|' . $customerCode . '|' . $respid;
         }
+
         $udata = base64_encode($udataRaw);
         $ket = '';
         $xApiKey = config('setting.credentials.x_api_key');
@@ -135,20 +135,10 @@ class ProxyService
         Log::info('respid', compact('respid'));
         Log::info('udata_raw', compact('udataRaw'));
         Log::info('Pay', compact('payload'));
+
         $response = Http::withoutVerifying()
             ->post($url, $payload);
         $responseData = $response->json();
-
-//        if (!$this->isCheckStatus) {
-//            $transaction = Transaction::create([
-//                    'trxid' => $trxid,
-//                    'date' => $dateTime->toDateString(),
-//                    'product_code' => $productCode,
-//                    'customer_code' => $customerCode,
-//                    'respid' => $responseData['respid'] ?? null
-//                ]
-//            );
-//        }
         $responseData['trxid'] = $trxid;
         $responseData['is_check_status'] = $this->isCheckStatus;
 
