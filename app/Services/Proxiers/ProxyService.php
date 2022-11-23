@@ -59,9 +59,10 @@ class ProxyService
             ->post($url, $payload);
         $responseData = $response->json();
 
-        $respid = $responseData['respid'];
+        $respid = $responseData['respid'] ?? null;
 
         if(blank($respid) || is_null($respid)) {
+            Log::alert('inquiry respid null ', $responseData);
             throw new \Exception($responseData['response'] ?? 'Tidak dapat melakukan inquiry.');
         }
 
