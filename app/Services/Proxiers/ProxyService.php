@@ -52,8 +52,11 @@ class ProxyService
             'signature' => $signature,
         ];
 
-        Log::info('udata_raw', compact('udataRaw'));
-        Log::info('Inquiry', compact('payload'));
+        Log::info('Inquiry', [
+            'payload' => $payload,
+            'udataRaw'=> $udataRaw,
+            'datetime' => now()->toDateTimeString()
+        ]);
 
         $response = Http::withoutVerifying()
             ->post($url, $payload);
@@ -62,7 +65,9 @@ class ProxyService
         $respid = $responseData['respid'] ?? null;
 
         if(blank($respid) || is_null($respid)) {
-            Log::alert('inquiry respid null ', $responseData);
+            Log::alert('inquiry respid null ', [
+                'response' => $responseData
+            ]);
             throw new \Exception($responseData['response'] ?? 'Tidak dapat melakukan inquiry.');
         }
 
@@ -103,7 +108,10 @@ class ProxyService
         $respid = $transaction->respid;
 
         if (blank($respid)) {
-            Log::info('Transaction data: ', collect($transaction)->toArray());
+            Log::info('Transaction data: ', [
+                'transaction' => $transaction,
+                'datetime' => now()->toDateTimeString()
+            ]);
             throw new \Exception('respid salah.');
         }
 
@@ -133,9 +141,11 @@ class ProxyService
             'signature' => $signature,
         ];
 
-        Log::info('respid', compact('respid'));
-        Log::info('udata_raw', compact('udataRaw'));
-        Log::info('Pay', compact('payload'));
+        Log::info('Pay', [
+            'payload' => $payload,
+            'udataRaw'=> $udataRaw,
+            'datetime' => now()->toDateTimeString()
+        ]);
 
         $response = Http::withoutVerifying()
             ->post($url, $payload);
@@ -173,7 +183,10 @@ class ProxyService
             'signature' => $signature,
         ];
 
-        Log::info('Purchase', compact('payload'));
+        Log::info('Purchase', [
+            'payload' => $payload,
+            'datetime' => now()->toDateTimeString()
+        ]);
 
         $response = Http::withoutVerifying()
             ->post($url, $payload);
@@ -223,7 +236,10 @@ class ProxyService
             'signature' => $signature,
         ];
 
-        Log::info('Cek status ', compact('payload'));
+        Log::info('Cek status ', [
+            'payload' => $payload,
+            'datetime' => now()->toDateTimeString()
+        ]);
         $response = Http::withoutVerifying()->post($url, $payload);
         $responseData = $response->json();
         $responseData['trxid'] = $trxid;
