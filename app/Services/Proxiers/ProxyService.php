@@ -88,9 +88,6 @@ class ProxyService
                 'respid' => $respid,
             ]
         );
-        $responseData['trxid'] = $trxid;
-        $responseData['is_check_status'] = $this->isCheckStatus;
-
         return $responseData;
     }
 
@@ -166,11 +163,7 @@ class ProxyService
             'reason' => $response->reason(),
             'content' => $response->body()
         ]);
-        $responseData = $response->json();
-        $responseData['trxid'] = $trxid;
-        $responseData['is_check_status'] = $this->isCheckStatus;
-
-        return $responseData;
+        return $response->json();
     }
 
     public function purchase($trxid, $productCode, $customerCode, $amount = '')
@@ -228,8 +221,6 @@ class ProxyService
                 ]
             );
         }
-        $responseData['trxid'] = $trxid;
-        $responseData['is_check_status'] = $this->isCheckStatus;
 
         return $responseData;
     }
@@ -277,10 +268,6 @@ class ProxyService
             'reason' => $response->reason(),
             'content' => $response->body()
         ]);
-        $responseData = $response->json();
-        $responseData['trxid'] = $trxid;
-        $responseData['is_check_status'] = true;
-
-        return $responseData;
+        return $response->json();
     }
 }
