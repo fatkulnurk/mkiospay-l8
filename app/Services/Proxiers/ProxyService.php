@@ -52,14 +52,22 @@ class ProxyService
             'signature' => $signature,
         ];
 
-        Log::info('Inquiry', [
+        Log::info('Before Inquiry', [
             'payload' => $payload,
             'udataRaw'=> $udataRaw,
-            'datetime' => now()->toDateTimeString()
+            'datetime' => now()->toDateTimeString(),
+            'url' => $url
         ]);
 
         $response = Http::withoutVerifying()
             ->post($url, $payload);
+
+        Log::info('After Inquiry ', [
+            'datetime' => now()->toDateTimeString(),
+            'url' => $url,
+            'reason' => $response->reason(),
+            'content' => $response->body()
+        ]);
         $responseData = $response->json();
 
         $respid = $responseData['respid'] ?? null;
@@ -86,17 +94,16 @@ class ProxyService
     }
 
 //    public function pay($trxid, $productCode, $customerCode, $respid, $options = [])
+
+    /**
+     * @throws \Exception
+     */
     public function pay($trxid, $productCode, $customerCode, $options = [])
     {
         $amount = $options['amount'] ?? '';
         $isPbb = $options['is_pbb'] ?? false;
 
         $transaction = Transaction::where('trxid', $trxid)->first();
-//        $transaction = Transaction::where('trxid', $trxid)
-//            ->where('product_code', $productCode)
-//            ->where('customer_code', $customerCode)
-//            ->where('date', now()->setTimezone('Asia/Jakarta')->toDateString())
-//            ->first();
 
         if (!blank($transaction)) {
             return $this->checkStatus($trxid);
@@ -141,14 +148,22 @@ class ProxyService
             'signature' => $signature,
         ];
 
-        Log::info('Pay', [
+        Log::info('Before Pay', [
             'payload' => $payload,
             'udataRaw'=> $udataRaw,
-            'datetime' => now()->toDateTimeString()
+            'datetime' => now()->toDateTimeString(),
+            'url' => $url
         ]);
 
         $response = Http::withoutVerifying()
             ->post($url, $payload);
+
+        Log::info('After Pay', [
+            'datetime' => now()->toDateTimeString(),
+            'url' => $url,
+            'reason' => $response->reason(),
+            'content' => $response->body()
+        ]);
         $responseData = $response->json();
         $responseData['trxid'] = $trxid;
         $responseData['is_check_status'] = $this->isCheckStatus;
@@ -183,13 +198,21 @@ class ProxyService
             'signature' => $signature,
         ];
 
-        Log::info('Purchase', [
+        Log::info('Before Purchase', [
             'payload' => $payload,
-            'datetime' => now()->toDateTimeString()
+            'datetime' => now()->toDateTimeString(),
+            'url' => $url
         ]);
 
         $response = Http::withoutVerifying()
             ->post($url, $payload);
+
+        Log::info('After Purchase ', [
+            'datetime' => now()->toDateTimeString(),
+            'url' => $url,
+            'reason' => $response->reason(),
+            'content' => $response->body()
+        ]);
         $responseData = $response->json();
 
         if (!$this->isCheckStatus) {
@@ -236,11 +259,20 @@ class ProxyService
             'signature' => $signature,
         ];
 
-        Log::info('Cek status ', [
+        Log::info('Before Cek status ', [
             'payload' => $payload,
-            'datetime' => now()->toDateTimeString()
+            'datetime' => now()->toDateTimeString(),
+            'url' => $url
         ]);
+
         $response = Http::withoutVerifying()->post($url, $payload);
+
+        Log::info('After Cek status ', [
+            'datetime' => now()->toDateTimeString(),
+            'url' => $url,
+            'reason' => $response->reason(),
+            'content' => $response->body()
+        ]);
         $responseData = $response->json();
         $responseData['trxid'] = $trxid;
         $responseData['is_check_status'] = true;
