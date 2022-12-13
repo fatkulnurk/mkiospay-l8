@@ -56,7 +56,8 @@ class ProxyService
             'payload' => $payload,
             'udataRaw'=> $udataRaw,
             'datetime' => now()->toDateTimeString(),
-            'url' => $url
+            'url' => $url,
+            'trxid' => $trxid
         ]);
 
         $response = Http::withoutVerifying()
@@ -152,7 +153,8 @@ class ProxyService
             'payload' => $payload,
             'udataRaw'=> $udataRaw,
             'datetime' => now()->toDateTimeString(),
-            'url' => $url
+            'url' => $url,
+            'trxid' => $trxid
         ]);
 
         $response = Http::withoutVerifying()
@@ -201,7 +203,8 @@ class ProxyService
         Log::info('Before Purchase', [
             'payload' => $payload,
             'datetime' => now()->toDateTimeString(),
-            'url' => $url
+            'url' => $url,
+            'trxid' => $trxid
         ]);
 
         $response = Http::withoutVerifying()
@@ -262,7 +265,8 @@ class ProxyService
         Log::info('Before Cek status ', [
             'payload' => $payload,
             'datetime' => now()->toDateTimeString(),
-            'url' => $url
+            'url' => $url,
+            'trxid' => $trxid
         ]);
 
         $response = Http::withoutVerifying()->post($url, $payload);
