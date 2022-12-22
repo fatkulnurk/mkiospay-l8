@@ -66,8 +66,10 @@ class ProxyService
         Log::info('After Inquiry ', [
             'datetime' => now()->toDateTimeString(),
             'url' => $url,
-            'reason' => $response->reason(),
-            'content' => $response->body()
+            'response_http_code'=> $response->status(),
+            'response_reason' => $response->reason(),
+            'response_content' => $response->body(),
+            'response_json' => $response->json() ?? ''
         ]);
         $responseData = $response->json();
 
@@ -160,8 +162,10 @@ class ProxyService
         Log::info('After Pay', [
             'datetime' => now()->toDateTimeString(),
             'url' => $url,
-            'reason' => $response->reason(),
-            'content' => $response->body()
+            'response_http_code'=> $response->status(),
+            'response_reason' => $response->reason(),
+            'response_content' => $response->body(),
+            'response_json' => $response->json() ?? ''
         ]);
         return $response->json();
     }
@@ -206,8 +210,10 @@ class ProxyService
         Log::info('After Purchase ', [
             'datetime' => now()->toDateTimeString(),
             'url' => $url,
-            'reason' => $response->reason(),
-            'content' => $response->body()
+            'response_http_code'=> $response->status(),
+            'response_reason' => $response->reason(),
+            'response_content' => $response->body(),
+            'response_json' => $response->json() ?? ''
         ]);
         $responseData = $response->json();
 
@@ -265,8 +271,10 @@ class ProxyService
         Log::info('After Cek status ', [
             'datetime' => now()->toDateTimeString(),
             'url' => $url,
-            'reason' => $response->reason(),
-            'content' => $response->body()
+            'response_http_code'=> $response->status(),
+            'response_reason' => $response->reason(),
+            'response_content' => $response->body(),
+            'response_json' => $response->json() ?? ''
         ]);
         return $response->json();
     }
